@@ -1,0 +1,3 @@
+﻿  FourOperationGenerater.cpp
+D:\university\grade3up\softwareengineer\homework3\FourOperationGenerater\FourOperationGenerater.cpp(150,19): warning C4244: “初始化”: 从“time_t”转换到“unsigned int”，可能丢失数据
+  FourOperationGenerater.vcxproj -> D:\university\grade3up\softwareengineer\homework3\FourOperationGenerater\x64\Debug\FourOperationGenerater.exe
