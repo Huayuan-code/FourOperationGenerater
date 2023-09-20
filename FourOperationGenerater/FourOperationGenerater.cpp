@@ -4,73 +4,142 @@
 #include<stdio.h>
 using namespace std;
 
-
-// ---------分数定义
-class Fraction
+long long gcd(long long a, long long b)
 {
-public:
-    long long inte; //整数部分
-    long long nume; // 分子
-    long long deno; // 分母
-
-    Fraction();
-    Fraction(long long range);
-    void show();
-};
-
-Fraction::Fraction()
-{
-    long long range = 100;
-    inte = rand() % range;
-    deno = rand() % range + 1;
-    nume = rand() % deno + 1;
-    if (nume == deno) nume--;
-    if (nume == 0) nume++, deno++;
+    if (!b) return a;
+    else return gcd(b, a % b);
 }
 
-Fraction::Fraction(long long range)
+long long lcm(long long a, long long b)
 {
-    inte = rand() % range;
-    deno = rand() % range + 1;
-    nume = rand() % deno + 1;
-    if (nume == deno) nume--;
-    if (nume == 0) nume++, deno++;
-}
-
-void Fraction::show()
-{
-    if (inte != 0) printf("%lld'", inte);
-    printf("%lld/%lld", nume, deno);
+    return a / gcd(a, b) * b;
 }
 
 //-----------数字定义
 class Number
 {
 public:
-    int type; // 1:interger, 2:fraction
-    long long inte;
-    Fraction frac;
+
+    long long inte; // 整数部分
+    long long nume; // 分子
+    long long deno; // 分母
 
     Number();
     Number(long long range);
     void show();
+    bool normalize();
+    bool iszero();
 };
 
 Number::Number()
-{}
+{
+    long long range = 100;
+    inte = rand() % range + 1;
+    deno = rand() % range + 1;
+    if (deno == 1) deno++;
+
+    if (rand() % 2) nume = rand() % deno;
+    else nume = 0;
+
+    normalize();
+}
 
 Number::Number(long long range)
 {
-    type = rand() % 2 + 1;
-    inte = rand() % range;
-    frac = Fraction(range);
+    inte = rand() % range + 1;
+    deno = rand() % range + 1;
+    if (deno == 1) deno++;
+
+    if (rand() % 2) nume = rand() % deno;
+    else nume = 0, deno = 1;
+
+    normalize();
 }
 
 void Number::show()
 {
-    if (type == 1) printf("%lld", inte);
-    else if (type == 2) frac.show();
+    if(inte) printf("%lld", inte);
+    if (inte && nume) printf("'");
+    if (nume) printf("%lld/%lld", nume, deno);
+    if (!inte && !nume) printf("0");
+}
 
+bool Number::normalize()
+{
+    if (inte < 0) return false;
+
+    nume += inte * deno;
+    if (nume < 0) return false;
+
+    inte = nume / deno;
+    nume %= deno;
+
+    long long g = gcd(nume, deno);
+    nume /= g;
+    deno /= g;
+}
+
+bool Number::iszero()
+{
+    if (inte == 0 && nume == 0) return true;
+    else return false;
+}
+
+Number operator + (const Number& a, const Number& b)
+{
+    Number ans;
+    ans.inte = a.inte + b.inte;
+    
+    long long com = lcm(a.deno, b.deno);
+    ans.deno = com;
+    ans.nume = com / a.deno * a.nume + com / b.deno * b.nume;
+
+    ans.normalize();
+
+    return ans;
+}
+
+Number operator - (const Number& a, const Number& b) //postive ans
+{
+    Number ans;
+    ans.inte = a.inte - b.inte;
+
+    long long com = lcm(a.deno, b.deno);
+    ans.deno = com;
+    ans.nume = com / a.deno * a.nume - com / b.deno * b.nume;
+
+    ans.normalize();
+    
+    return ans;
+}
+
+Number operator * (const Number& a, const Number& b)
+{
+    Number ans;
+
+    ans.inte = 0;
+    ans.deno = a.deno * b.deno;
+    ans.nume = (a.inte * a.deno + a.nume) * (b.inte * b.deno + b.nume);
+    ans.normalize();
+
+    return ans;
+}
+
+Number operator / (Number& a, Number& b)
+{
+    Number ans;
+    ans.inte = -1;
+    ans.nume = -1;
+
+    if (b.iszero() || !b.normalize()) return ans;
+
+    ans.inte = 0;
+    ans.deno = a.deno * (b.inte * b.deno + b.nume);
+    ans.nume = (a.inte * a.deno + a.nume) * b.deno;
+
+    ans.normalize();
+
+    return ans;
 }
 
 //---------一类表达式定义
@@ -84,6 +153,7 @@ public:
     Expression1();
     Expression1(long long range);
     void show();
+    Number cal();
 };
 
 Expression1::Expression1()
@@ -92,11 +162,11 @@ Expression1::Expression1()
 Expression1::Expression1(long long range)
 {
     num1 = Number(range);
-    num2 = Number(range);
+    num2 = Number(num1.inte);
     op = rand() % 4 + 1;
     if (op == 1) op = '+';
     else if (op == 2) op = '-';
-    else if (op == 3) op = '*';
+    else if (op == 3) op = 'x';
     else if (op == 4) op = '|';
 }
 
@@ -107,18 +177,27 @@ void Expression1::show()
     num2.show();
 }
 
+Number Expression1::cal()
+{
+    if (op == '+') return num1 + num2;
+    else if (op == '-') return num1 - num2;
+    else if (op == 'x') return num1 * num2;
+    else if (op == '|') return num1 / num2;
+}
+
 //----二类表达式定义
 
 class Expression2
 {
 public:
-    long long inte;
+    Number num;
     Expression1 exp;
     char op;
 
     Expression2();
     Expression2(long long range);
     void show();
+    Number cal();
     
 };
 
@@ -128,33 +207,81 @@ Expression2::Expression2()
 
 Expression2::Expression2(long long range)
 {
-    inte = rand() % range + 1;
-    exp = Expression1(range);
+    num = Number(range);
+    exp = Expression1(num.inte);
     op = rand() % 4 + 1;
     if (op == 1) op = '+';
     else if (op == 2) op = '-';
-    else if (op == 3) op = '*';
+    else if (op == 3) op = 'x';
     else if (op == 4) op = '|';
+}
+
+Number operator + (Number& num, Expression1& e)
+{
+    Number ans;
+    ans = num + e.cal();
+    return ans;
+}
+
+Number operator - (Number& num, Expression1& e)
+{
+    Number ans;
+    ans = num - e.cal();
+    return ans;
+}
+
+Number operator * (Number& num, Expression1& e)
+{
+    Number ans;
+    ans = num * e.cal();
+    return ans;
+}
+
+Number operator / (Number& num, Expression1& e)
+{
+    Number ans, r = e.cal();
+    ans.inte = -1;
+    ans.nume = -1;
+    if (r.iszero() || !r.normalize())  return ans;
+    ans = num /r;
+    return ans;
+}
+
+Number Expression2::cal()
+{
+    if (op == '+') return num + exp;
+    else if (op == '-') return num - exp;
+    else if (op == 'x') return num * exp;
+    else if (op == '|') return num / exp;
 }
 
 void Expression2::show()
 {
-    printf("%lld %c (", inte, op);
+    num.show();
+    printf(" %c ", op);
+    cout << '(';
     exp.show();
-    printf(")");
+    cout << ')';
 }
-
 
 int main()
 {
     unsigned seed = time(0);
+    //seed = 1;
     srand(seed);
-    
-    for (int i = 0; i < 100; i++)
+
+    Expression2 num(10000);
+    for (int i = 0; i < 10000; i++)
     {
-        Expression2 num(100);
+        num = Expression2(100);
+     
         num.show();
-        cout << endl;
+        cout << " = ";
+        Number ans = num.cal();
+        ans.show();
+        if (!ans.normalize()) printf(" negativ! or div0");
+        
+        cout <<   "\n\n";
     }
 }
 
