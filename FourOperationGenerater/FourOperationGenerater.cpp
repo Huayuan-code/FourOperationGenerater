@@ -1,288 +1,163 @@
-﻿#include <iostream>
+﻿#pragma once
+#include <iostream>
 #include <cstdlib> // Header file needed to use srand and rand
 #include <ctime> //
 #include<stdio.h>
+#include<string.h>
+#include "Expression2.h"
 using namespace std;
 
-long long gcd(long long a, long long b)
+void showhelp()
 {
-    if (!b) return a;
-    else return gcd(b, a % b);
+    printf("command error\n");
+    printf("here is the command format:\n");
+    printf("Myapp.exe -n <the number of expression> -r <the max value of each number>\n");
+    printf("the number of expression should be bewteen [100, 1000000]\n");
+    printf("the max value of each number should be bewteen [100, 1000000]\n");
 }
 
-long long lcm(long long a, long long b)
+long long string2ll(string &s)
 {
-    return a / gcd(a, b) * b;
+    long long ans = 0;
+    for (int i = 0; i < s.length(); i++)
+    {
+        if (s[i] < '0' || s[i] > '9') return -1;
+        ans *= 10;
+        ans += s[i] - '0';
+        if (ans > 10000000) return -1;
+    }
+    return ans;
 }
 
-//-----------数字定义
-class Number
+int generate(long long m, long long r)
 {
-public:
+    printf("n = %lld, r = %lld\n", m, r);
+    printf("generating.....\n");
+    FILE *fexe, *fans, *fcom;
+    int err;
+    err = fopen_s(&fexe, "Exercises.txt", "w+");
+    if (err)
+    {
+        printf("can't open Exercises.txt\n");
+        return 0;
+    }
+    err = fopen_s(&fans, "Answers.txt", "w+");
+    if (err)
+    {;
+        printf("can't open Answers.txt\n");
+        return 0;
+    }
+    err = fopen_s(&fcom, "complete.txt", "w+");
+    if (err)
+    {
+        ;
+        printf("can't open complete.txt\n");
+        return 0;
+    }
 
-    long long inte; // 整数部分
-    long long nume; // 分子
-    long long deno; // 分母
-
-    Number();
-    Number(long long range);
-    void show();
-    bool normalize();
-    bool iszero();
-};
-
-Number::Number()
-{
-    long long range = 100;
-    inte = rand() % range + 1;
-    deno = rand() % range + 1;
-    if (deno == 1) deno++;
-
-    if (rand() % 2) nume = rand() % deno;
-    else nume = 0;
-
-    normalize();
-}
-
-Number::Number(long long range)
-{
-    inte = rand() % range + 1;
-    deno = rand() % range + 1;
-    if (deno == 1) deno++;
-
-    if (rand() % 2) nume = rand() % deno;
-    else nume = 0, deno = 1;
-
-    normalize();
-}
-
-void Number::show()
-{
-    if(inte) printf("%lld", inte);
-    if (inte && nume) printf("'");
-    if (nume) printf("%lld/%lld", nume, deno);
-    if (!inte && !nume) printf("0");
-}
-
-bool Number::normalize()
-{
-    if (inte < 0) return false;
-
-    nume += inte * deno;
-    if (nume < 0) return false;
-
-    inte = nume / deno;
-    nume %= deno;
-
-    long long g = gcd(nume, deno);
-    nume /= g;
-    deno /= g;
-}
-
-bool Number::iszero()
-{
-    if (inte == 0 && nume == 0) return true;
-    else return false;
-}
-
-Number operator + (const Number& a, const Number& b)
-{
+    long long cnt = 0;
+    Expression1 exp1(r);
+    Expression2 exp2(r);
     Number ans;
-    ans.inte = a.inte + b.inte;
-    
-    long long com = lcm(a.deno, b.deno);
-    ans.deno = com;
-    ans.nume = com / a.deno * a.nume + com / b.deno * b.nume;
+    while (cnt < m)
+    {
+        if (rand() % 2)
+        {
+            exp1 = Expression1(r);
+            ans = exp1.cal();
+            if (ans.iszero() || !ans.normalize())
+            {                   
+                continue;
+            }
+            
+            exp1.writefile(fexe);
+            fprintf(fexe, " = ");
+            fprintf(fexe, "\n");
 
-    ans.normalize();
+            ans.writeFile(fans);
+            fprintf(fans, "\n");
 
-    return ans;
+            exp1.writefile(fcom);
+            fprintf(fcom, " = ");
+            ans.writeFile(fcom);
+            fprintf(fcom, "\n");
+        }
+        else
+        {
+            exp2 = Expression2(r);
+            ans = exp2.cal();
+            if (ans.iszero() || !ans.normalize()) continue;
+
+            exp2.writefile(fexe);
+            fprintf(fexe, " = ");
+            fprintf(fexe, "\n");
+
+            ans.writeFile(fans);
+            fprintf(fans, "\n");
+
+            exp2.writefile(fcom);
+            fprintf(fcom, " = ");
+            ans.writeFile(fcom);
+            fprintf(fcom, "\n");
+        }
+        cnt++;
+        //printf("%lld\n", cnt);
+    }
+
+
+    fclose(fexe);
+    fclose(fans);
+    printf("done!\n");
+    return 1;
 }
 
-Number operator - (const Number& a, const Number& b) //postive ans
+
+
+int main(int argc, char* argv[])
 {
-    Number ans;
-    ans.inte = a.inte - b.inte;
-
-    long long com = lcm(a.deno, b.deno);
-    ans.deno = com;
-    ans.nume = com / a.deno * a.nume - com / b.deno * b.nume;
-
-    ans.normalize();
-    
-    return ans;
-}
-
-Number operator * (const Number& a, const Number& b)
-{
-    Number ans;
-
-    ans.inte = 0;
-    ans.deno = a.deno * b.deno;
-    ans.nume = (a.inte * a.deno + a.nume) * (b.inte * b.deno + b.nume);
-    ans.normalize();
-
-    return ans;
-}
-
-Number operator / (Number& a, Number& b)
-{
-    Number ans;
-    ans.inte = -1;
-    ans.nume = -1;
-
-    if (b.iszero() || !b.normalize()) return ans;
-
-    ans.inte = 0;
-    ans.deno = a.deno * (b.inte * b.deno + b.nume);
-    ans.nume = (a.inte * a.deno + a.nume) * b.deno;
-
-    ans.normalize();
-
-    return ans;
-}
-
-//---------一类表达式定义
-class Expression1
-{
-public:
-    Number num1;
-    Number num2;
-    char op;
-
-    Expression1();
-    Expression1(long long range);
-    void show();
-    Number cal();
-};
-
-Expression1::Expression1()
-{}
-
-Expression1::Expression1(long long range)
-{
-    num1 = Number(range);
-    num2 = Number(num1.inte);
-    op = rand() % 4 + 1;
-    if (op == 1) op = '+';
-    else if (op == 2) op = '-';
-    else if (op == 3) op = 'x';
-    else if (op == 4) op = '|';
-}
-
-void Expression1::show()
-{
-    num1.show();
-    cout << " " << op << " ";
-    num2.show();
-}
-
-Number Expression1::cal()
-{
-    if (op == '+') return num1 + num2;
-    else if (op == '-') return num1 - num2;
-    else if (op == 'x') return num1 * num2;
-    else if (op == '|') return num1 / num2;
-}
-
-//----二类表达式定义
-
-class Expression2
-{
-public:
-    Number num;
-    Expression1 exp;
-    char op;
-
-    Expression2();
-    Expression2(long long range);
-    void show();
-    Number cal();
-    
-};
-
-Expression2::Expression2()
-{
-}
-
-Expression2::Expression2(long long range)
-{
-    num = Number(range);
-    exp = Expression1(num.inte);
-    op = rand() % 4 + 1;
-    if (op == 1) op = '+';
-    else if (op == 2) op = '-';
-    else if (op == 3) op = 'x';
-    else if (op == 4) op = '|';
-}
-
-Number operator + (Number& num, Expression1& e)
-{
-    Number ans;
-    ans = num + e.cal();
-    return ans;
-}
-
-Number operator - (Number& num, Expression1& e)
-{
-    Number ans;
-    ans = num - e.cal();
-    return ans;
-}
-
-Number operator * (Number& num, Expression1& e)
-{
-    Number ans;
-    ans = num * e.cal();
-    return ans;
-}
-
-Number operator / (Number& num, Expression1& e)
-{
-    Number ans, r = e.cal();
-    ans.inte = -1;
-    ans.nume = -1;
-    if (r.iszero() || !r.normalize())  return ans;
-    ans = num /r;
-    return ans;
-}
-
-Number Expression2::cal()
-{
-    if (op == '+') return num + exp;
-    else if (op == '-') return num - exp;
-    else if (op == 'x') return num * exp;
-    else if (op == '|') return num / exp;
-}
-
-void Expression2::show()
-{
-    num.show();
-    printf(" %c ", op);
-    cout << '(';
-    exp.show();
-    cout << ')';
-}
-
-int main()
-{
-    unsigned seed = time(0);
-    //seed = 1;
+    int seed = time(0);
     srand(seed);
 
-    Expression2 num(10000);
-    for (int i = 0; i < 10000; i++)
+    long long r = -1;
+    long long m = 100;
+    if (argc < 3) printf("too few param");
+    else if (argc == 3)
     {
-        num = Expression2(100);
-     
-        num.show();
-        cout << " = ";
-        Number ans = num.cal();
-        ans.show();
-        if (!ans.normalize()) printf(" negativ! or div0");
-        
-        cout <<   "\n\n";
+        string param1 = argv[1];
+        string param2 = argv[2];
+        long long r = string2ll(param2);
+        if (param1 != "-r" || r < 100 || r > 1000000) showhelp();
+        else if (!generate(m, r)) printf("error\n");
     }
+    else if (argc == 4) printf("too few param");
+    else if (argc == 5)
+    {
+        string param1 = argv[1];
+        string param2 = argv[2];
+        string param3 = argv[3];
+        string param4 = argv[4];
+
+        if (param1 != "-r" && param3 != "-r") showhelp();
+        else if (param1 != "-n" && param3 != "-n") showhelp();
+        else
+        {
+            long long num1 = string2ll(param2);
+            long long num2 = string2ll(param4);
+            if (num1 < 100 || num2 < 100 || num1 > 1000000 || num2 > 1000000) showhelp();
+            else
+            {
+                if (param1 == "-r") r = num1, m = num2;
+                else r = num2, m = num1;
+                if (!generate(m, r)) printf("error\n");
+            }
+        }
+
+    }
+    else printf("too much param\n");
+    
+
+
+    return 0;
 }
 
 // 运行程序: Ctrl + F5 或调试 >“开始执行(不调试)”菜单

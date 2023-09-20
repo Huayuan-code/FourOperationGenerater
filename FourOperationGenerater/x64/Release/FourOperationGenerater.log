@@ -1,0 +1,8 @@
+﻿  FourOperationGenerater.cpp
+D:\university\grade3up\softwareengineer\homework3\FourOperationGenerater\FourOperationGenerater.cpp(118,14): warning C4244: “初始化”: 从“time_t”转换到“int”，可能丢失数据
+  正在生成代码
+  3 of 101 functions ( 3.0%) were compiled, the rest were copied from previous compilation.
+    0 functions were new in current compilation
+    8 functions had inline decision re-evaluated but remain unchanged
+  已完成代码的生成
+  FourOperationGenerater.vcxproj -> D:\university\grade3up\softwareengineer\homework3\FourOperationGenerater\x64\Release\Myapp.exe
