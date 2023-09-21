@@ -36,6 +36,38 @@ void Expression1::show()
     num2.show();
 }
 
+Number operator + (Number& num, Expression1& e)
+{
+    Number ans;
+    ans = num + e.cal();
+    return ans;
+}
+
+Number operator - (Number& num, Expression1& e)
+{
+    Number ans;
+    ans = num - e.cal();
+    return ans;
+}
+
+Number operator * (Number& num, Expression1& e)
+{
+    Number ans;
+    ans = num * e.cal();
+    return ans;
+}
+
+Number operator / (Number& num, Expression1& e)
+{
+    Number ans, r = e.cal();
+    ans.inte = -1;
+    ans.nume = -1;
+    if (r.iszero() || !r.normalize())  return ans;
+    ans = num / r;
+    return ans;
+}
+
+
 Number Expression1::cal()
 {
     if (op == '+') return num1 + num2;

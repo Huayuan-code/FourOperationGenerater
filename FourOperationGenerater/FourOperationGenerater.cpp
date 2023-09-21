@@ -4,7 +4,7 @@
 #include <ctime> //
 #include<stdio.h>
 #include<string.h>
-#include "Expression2.h"
+#include "Expression3.h"
 using namespace std;
 
 void showhelp()
@@ -29,6 +29,7 @@ long long string2ll(string &s)
     return ans;
 }
 
+//数量m， 范围r
 int generate(long long m, long long r)
 {
     printf("n = %lld, r = %lld\n", m, r);
@@ -58,10 +59,12 @@ int generate(long long m, long long r)
     long long cnt = 0;
     Expression1 exp1(r);
     Expression2 exp2(r);
+    Expression3 exp3(r);
     Number ans;
     while (cnt < m)
     {
-        if (rand() % 2)
+        int rnd = rand() % 1000;
+        if (rnd  < 500)
         {
             exp1 = Expression1(r);
             ans = exp1.cal();
@@ -82,7 +85,7 @@ int generate(long long m, long long r)
             ans.writeFile(fcom);
             fprintf(fcom, "\n");
         }
-        else
+        else if(rnd < 900)
         {
             exp2 = Expression2(r);
             ans = exp2.cal();
@@ -96,6 +99,24 @@ int generate(long long m, long long r)
             fprintf(fans, "\n");
 
             exp2.writefile(fcom);
+            fprintf(fcom, " = ");
+            ans.writeFile(fcom);
+            fprintf(fcom, "\n");
+        }
+        else
+        {
+            exp3 = Expression3(r);
+            ans = exp3.cal();
+            if (ans.iszero() || !ans.normalize()) continue;
+
+            exp3.writefile(fexe);
+            fprintf(fexe, " = ");
+            fprintf(fexe, "\n");
+
+            ans.writeFile(fans);
+            fprintf(fans, "\n");
+
+            exp3.writefile(fcom);
             fprintf(fcom, " = ");
             ans.writeFile(fcom);
             fprintf(fcom, "\n");

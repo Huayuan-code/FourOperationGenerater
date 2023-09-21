@@ -1,7 +1,6 @@
 #pragma once
 #include "Expression1.h"
 //----二类表达式定义
-
 class Expression2
 {
 public:
@@ -30,37 +29,6 @@ Expression2::Expression2(long long range)
     else if (op == 2) op = '-';
     else if (op == 3) op = 'x';
     else if (op == 4) op = '|';
-}
-
-Number operator + (Number& num, Expression1& e)
-{
-    Number ans;
-    ans = num + e.cal();
-    return ans;
-}
-
-Number operator - (Number& num, Expression1& e)
-{
-    Number ans;
-    ans = num - e.cal();
-    return ans;
-}
-
-Number operator * (Number& num, Expression1& e)
-{
-    Number ans;
-    ans = num * e.cal();
-    return ans;
-}
-
-Number operator / (Number& num, Expression1& e)
-{
-    Number ans, r = e.cal();
-    ans.inte = -1;
-    ans.nume = -1;
-    if (r.iszero() || !r.normalize())  return ans;
-    ans = num / r;
-    return ans;
 }
 
 Number Expression2::cal()

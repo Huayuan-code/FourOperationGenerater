@@ -1,6 +1,5 @@
 ﻿  FourOperationGenerater.cpp
-D:\university\grade3up\softwareengineer\homework3\FourOperationGenerater\FourOperationGenerater.cpp(121,14): warning C4244: “初始化”: 从“time_t”转换到“int”，可能丢失数据
-D:\university\grade3up\softwareengineer\homework3\FourOperationGenerater\Number.h(82): warning C4715: “Number::normalize”: 不是所有的控件路径都返回值
-D:\university\grade3up\softwareengineer\homework3\FourOperationGenerater\Expression1.h(45): warning C4715: “Expression1::cal”: 不是所有的控件路径都返回值
-D:\university\grade3up\softwareengineer\homework3\FourOperationGenerater\Expression2.h(72): warning C4715: “Expression2::cal”: 不是所有的控件路径都返回值
+D:\university\grade3up\softwareengineer\homework3\FourOperationGenerater\FourOperationGenerater.cpp(139,14): warning C4244: “初始化”: 从“time_t”转换到“int”，可能丢失数据
+D:\university\grade3up\softwareengineer\homework3\FourOperationGenerater\Expression1.h(77): warning C4715: “Expression1::cal”: 不是所有的控件路径都返回值
+D:\university\grade3up\softwareengineer\homework3\FourOperationGenerater\Expression2.h(40): warning C4715: “Expression2::cal”: 不是所有的控件路径都返回值
   FourOperationGenerater.vcxproj -> D:\university\grade3up\softwareengineer\homework3\FourOperationGenerater\x64\Debug\FourOperationGenerater.exe
